@@ -1,6 +1,7 @@
 import streamlit as st
 
 from parser.pdf_parser import extract_text_from_pdf
+from ai.extractor import extract_product_information
 
 
 st.set_page_config(
@@ -25,6 +26,8 @@ if uploaded_file:
 
     extracted_text = extract_text_from_pdf(uploaded_file)
 
+    ai_response = extract_product_information(extracted_text)
+
     st.subheader("Extracted Text")
 
     st.text_area(
@@ -32,3 +35,11 @@ if uploaded_file:
         value=extracted_text,
         height=400
     )
+
+    st.subheader("AI Extraction")
+
+    if isinstance(ai_response, dict) and ai_response.get("status") == "error":
+         st.warning("Gemini API is currently unavailable.")
+         st.text(ai_response["message"])
+    else:
+         st.code(ai_response, language="json")
