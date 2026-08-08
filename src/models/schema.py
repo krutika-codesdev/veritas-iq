@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 class Measurement(BaseModel):
     value: float | None = None
     unit: str | None = None
+    qualifier: str | None = None
 
 
 class Dimensions(BaseModel):

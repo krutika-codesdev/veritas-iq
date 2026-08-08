@@ -1,4 +1,6 @@
+import json
 import os
+import re
 
 from dotenv import load_dotenv
 from google import genai
@@ -161,7 +163,13 @@ Product Text:
             contents=prompt,
         )
 
-        return response.text
+        raw_response = response.text.strip()
+
+         # Remove Markdown code fences if Gemini returns JSON inside ```json ... ```
+        raw_response = re.sub(r"^```json\s*", "", raw_response)
+        raw_response = re.sub(r"\s*```$", "", raw_response)
+
+        return json.loads(raw_response)
 
     except Exception as e:
         return {
