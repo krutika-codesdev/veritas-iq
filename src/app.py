@@ -214,74 +214,125 @@ if uploaded_files:
 
 
     # --------------------------------------------------
-    # Display validation
+    # Explainability and evidence
     # --------------------------------------------------
 
-    st.subheader("Weight Validation")
-
-    for item in weight_values:
-
-        st.write(
-            f"**{item['source']}** → "
-            f"{item['value']} {item['unit']}"
-        )
-
+    st.subheader("Validation Result")
 
     status = validation_result.get("status")
 
     if status == "conflict":
-
         st.error("CONFLICT")
 
     elif status == "agreement":
-
         st.success("AGREEMENT")
 
     elif status == "missing":
-
         st.warning("MISSING")
 
     else:
-
         st.info(str(status))
 
 
-    agreement_count = validation_result.get(
-        "agreement_count"
-    )
-
-    source_count = validation_result.get(
-        "source_count"
-    )
+    agreement_count = validation_result.get("agreement_count")
+    source_count = validation_result.get("source_count")
 
     if agreement_count is not None:
-
         st.write(
-            f"**Agreement:** "
-            f"{agreement_count} / {source_count} sources"
+            f"**Source agreement:** "
+            f"{agreement_count} / {source_count}"
         )
 
+
+    # --------------------------------------------------
+    # Source comparison
+    # --------------------------------------------------
+
+    st.subheader("Source Comparison")
+
+    evidence = validation_result.get("evidence", [])
+
+    for item in evidence:
+
+        source = item["source"]
+        value = item["value"]
+        unit = item["unit"]
+
+        st.write(
+            f"**{source}** → {value} {unit}"
+        )
+
+
+    # --------------------------------------------------
+    # Explain the result
+    # --------------------------------------------------
+
+    if status == "conflict" and evidence:
+
+        st.subheader("Why this result?")
+
+        majority_value = validation_result.get("value")
+
+        if majority_value:
+
+            majority_text = (
+                f"{majority_value['value']} "
+                f"{majority_value['unit']}"
+            )
+
+            st.write(
+                f"**Majority value:** {majority_text}"
+            )
+
+            conflicting_sources = [
+                item["source"]
+                for item in evidence
+                if (
+                    item["value"] != majority_value["value"]
+                     or item["unit"] != majority_value["unit"]
+                    )
+            ]
+
+            if conflicting_sources:
+
+               st.write(
+                    "**Conflicting source(s):** "
+                    + ", ".join(conflicting_sources)
+                )
+
+               st.info(
+                    f"{agreement_count} of {source_count} sources "
+                    f"agree on {majority_text}. "
+                    f"The remaining source(s) report a different value."
+                )
+
+
+    elif status == "agreement" and evidence:
+
+        majority_value = validation_result.get("value")
+
+        if majority_value:
+
+            st.info(
+                f"All available sources agree on "
+                f"{majority_value['value']} "
+                f"{majority_value['unit']}."
+            )
+
+
+    elif status == "missing":
+
+            st.info(
+                "No source provided a valid weight for this product."
+            )
+
+
+    # --------------------------------------------------
+    # Validator explanation
+    # --------------------------------------------------
 
     reason = validation_result.get("reason")
 
     if reason:
 
-        st.write(f"**Reason:** {reason}")
-
-
-    # --------------------------------------------------
-    # Evidence
-    # --------------------------------------------------
-
-    evidence = validation_result.get("evidence", [])
-
-    if evidence:
-
-        st.subheader("Evidence")
-
-        for item in evidence:
-
-            st.write(
-                f"{item['source']} → "
-                f"{item['value']} {item['unit']}"
-            )
+        st.write(f"**Validation reason:** {reason}")
