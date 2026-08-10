@@ -7,6 +7,8 @@ from processing.mapper import (
 from processing.matcher import products_match
 from processing.validator import validate_weight
 
+from processing.health_score import calculate_health_score
+
 from parser.pdf_parser import extract_text_from_pdf
 from parser.csv_parser import extract_records_from_csv
 from parser.excel_parser import extract_records_from_excel
@@ -212,6 +214,11 @@ if uploaded_files:
 
     validation_result = validate_weight(weight_values)
 
+    health_score = calculate_health_score(
+                    weight_values,
+                    validation_result,
+                    expected_source_count=len(matched_group),
+    )
 
     # --------------------------------------------------
     # Explainability and evidence
@@ -336,3 +343,38 @@ if uploaded_files:
     if reason:
 
         st.write(f"**Validation reason:** {reason}")
+
+    # --------------------------------------------------
+    # Health Score
+    # --------------------------------------------------
+
+    st.subheader("Health Score")
+
+    score = health_score.get("score", 0.0)
+
+    st.metric(
+        label="Product Health Score",
+        value=f"{score:.1f} / 100",
+    )
+
+    components = health_score.get("components", {})
+
+    st.write(
+        f"**Agreement:** "
+        f"{components.get('agreement', 0.0):.1f}"
+    )
+
+    st.write(
+        f"**Completeness:** "
+        f"{components.get('completeness', 0.0):.1f}"
+    )
+
+    st.write(
+        f"**Evidence:** "
+        f"{components.get('evidence', 0.0):.1f}"
+    )
+
+    reason = health_score.get("reason")
+
+    if reason:
+        st.write(f"**Why?** {reason}")
