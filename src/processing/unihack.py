@@ -176,7 +176,9 @@ def set_content(
     )
 
 
-def get_delivery_headers(schema_csv_path: str | Path) -> list[str]:
+def get_delivery_headers(
+    schema_csv_path: str | Path,
+) -> list[str]:
     """
     Read the exact 252-column delivery schema from the supplied
     UniHack expected-output CSV.
@@ -211,6 +213,11 @@ def product_to_delivery_row(
     """
     Convert a canonical Product into the exact UniHack
     252-column delivery format.
+
+    IMPORTANT:
+    Only official delivery columns are written.
+    Unknown/non-schema fields are ignored instead of
+    accidentally creating extra CSV columns.
     """
 
     if len(delivery_headers) != 252:
@@ -235,7 +242,7 @@ def product_to_delivery_row(
 
     row["PART_NUMBER"] = product.part_number
     row["SKU - MY_PART_NUMBER"] = product.sku
-    row["MANUFACTURER_PART_NUMBER"] = product.model_number
+    row["MANUFACTURER_PART_NUMBER"] = product.product_code
     row["ALTERNATE_PART_NUMBER"] = product.alternate_part_number
 
     # ---------------------------------------------------------
@@ -343,17 +350,27 @@ def product_to_delivery_row(
 
     # ---------------------------------------------------------
     # Material / colour / size
+    #
+    # These fields exist in the canonical Product model,
+    # but "Material", "Color", and "Size" are NOT official
+    # UniHack delivery headers.
+    #
+    # Therefore we only write them if the official schema
+    # actually contains those columns.
     # ---------------------------------------------------------
 
-    row["Material"] = product.material
+    if "Material" in row:
+        row["Material"] = product.material
 
-    row["Color"] = (
-        ", ".join(product.color)
-        if product.color
-        else None
-    )
+    if "Color" in row:
+        row["Color"] = (
+            ", ".join(product.color)
+            if product.color
+            else None
+        )
 
-    row["Size"] = product.size
+    if "Size" in row:
+        row["Size"] = product.size
 
     # ---------------------------------------------------------
     # Dimensions
@@ -383,7 +400,32 @@ def product_to_delivery_row(
 
     row["Country Of Origin"] = product.country_of_origin
 
+    # ---------------------------------------------------------
+    # FINAL SAFETY CHECK
+    # ---------------------------------------------------------
+    # The delivery row must never contain a field that is not
+    # part of the official 252-column schema.
+
+    extra_keys = [
+        key
+        for key in row
+        if key not in delivery_headers
+    ]
+
+    if extra_keys:
+        raise ValueError(
+            "Generated delivery row contains columns that "
+            f"are not in the official schema: {extra_keys}"
+        )
+
+    if len(row) != 252:
+        raise ValueError(
+            f"Generated delivery row contains {len(row)} columns "
+            "instead of the required 252 columns."
+        )
+
     return row
+
 
 def read_unihack_input(
     path: str | Path,
