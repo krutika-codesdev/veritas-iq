@@ -1,0 +1,129 @@
+{
+  "manufacturer": "3M",
+  "brand": "3M",
+  "product_name": "3M Cubitron II 775L Stikit Film Disc",
+  "model_number": "7100075678",
+  "product_code": "7100075678",
+
+  "identity_resolution": {
+    "input_mpn": "3MABR-7100075678",
+    "resolved_mpn": "7100075678",
+    "resolved_manufacturer": "3M",
+    "match_reason": "The source identifies 7100075678 as a 3M stock number for the 3M Cubitron II 775L product."
+  },
+
+  "product_type": "Abrasive Disc",
+  "category": "Abrasives",
+  "subcategory": "Sanding Discs",
+
+  "classification": {
+    "dept": null,
+    "class": null,
+    "fine": null,
+    "classpath": null
+  },
+
+  "attributes": [
+    {
+      "label": "Grit",
+      "value": "150",
+      "unit": null,
+      "source_url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf"
+    },
+    {
+      "label": "Diameter",
+      "value": "5",
+      "unit": "in",
+      "source_url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf"
+    },
+    {
+      "label": "Backing",
+      "value": "Film",
+      "unit": null,
+      "source_url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf"
+    },
+    {
+      "label": "Backing Weight",
+      "value": "3",
+      "unit": "mil",
+      "source_url": "https://www.jamindustrialsupply.com/product/3m-cubitron-ii-stikit-film-disc-775l-150-5-in-x-nh-linered-w-tab-die-500x/"
+    },
+    {
+      "label": "Abrasive",
+      "value": "Ceramic",
+      "unit": null,
+      "source_url": "https://www.grainger.com/product/3M-CUBITRON-II-PSA-Sanding-Disc-5-in-Dia-448D23"
+    },
+    {
+      "label": "Vacuum Pattern",
+      "value": "Non-Vacuum",
+      "unit": null,
+      "source_url": "https://www.grainger.com/product/3M-CUBITRON-II-PSA-Sanding-Disc-5-in-Dia-448D23"
+    }
+  ],
+
+  "dimensions": {
+    "length": null,
+    "width": 5,
+    "height": null,
+    "depth": null,
+    "unit": "in",
+    "source_url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf"
+  },
+
+  "weight": {
+    "value": null,
+    "unit": null,
+    "source_url": null
+  },
+
+  "descriptions": {
+    "short": "3M Cubitron II 775L Stikit Film Disc",
+    "long": null,
+    "marketing": null
+  },
+
+  "features": [
+    "Ceramic abrasive",
+    "Film backing",
+    "Non-vacuum"
+  ],
+
+  "evidence": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifying the 7100075678 stock number and product."
+    },
+    {
+      "url": "https://www.jamindustrialsupply.com/product/3m-cubitron-ii-stikit-film-disc-775l-150-5-in-x-nh-linered-w-tab-die-500x/",
+      "source_type": "distributor",
+      "description": "Distributor page matching the supplied catalogue product and 3M stock number."
+    },
+    {
+      "url": "https://www.grainger.com/product/3M-CUBITRON-II-PSA-Sanding-Disc-5-in-Dia-448D23",
+      "source_type": "distributor",
+      "description": "Independent product listing corroborating product specifications."
+    }
+  ],
+
+  "source_discovery": {
+    "query_used": "\"3MABR-7100075678\"",
+    "sources_found": [
+      "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "https://www.jamindustrialsupply.com/product/3m-cubitron-ii-stikit-film-disc-775l-150-5-in-x-nh-linered-w-tab-die-500x/",
+      "https://www.grainger.com/product/3M-CUBITRON-II-PSA-Sanding-Disc-5-in-Dia-448D23"
+    ],
+    "primary_source": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf"
+  },
+
+  "assets": {
+    "product_image": null,
+    "specification_sheet": null,
+    "installation_manual": null,
+    "owners_manual": null
+  },
+
+  "confidence": 0.95,
+  "notes": "Development fixture created from source-supported product information. Not a hardcoded production product."
+}
