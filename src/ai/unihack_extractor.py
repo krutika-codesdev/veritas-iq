@@ -81,7 +81,14 @@ Return this structure:
     "brand": null,
     "product_name": null,
     "model_number": null,
-    "product_code": "{mfg_part_num}",
+    "product_code": null,
+
+    "identity_resolution": {{
+        "input_mpn": "{mfg_part_num}",
+        "resolved_mpn": null,
+        "resolved_manufacturer": null,
+        "match_reason": null
+    }},
 
     "product_type": null,
     "category": null,
@@ -133,6 +140,12 @@ Return this structure:
             "description": null
         }}
     ],
+
+    "source_discovery": {{
+        "query_used": null,
+        "sources_found": [],
+        "primary_source": null
+    }},
 
     "assets": {{
         "product_image": null,
