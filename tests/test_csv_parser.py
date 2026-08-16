@@ -1,13 +1,17 @@
-import sys
-
-sys.path.insert(0, "src")
+from pathlib import Path
 
 from parser.csv_parser import extract_records_from_csv
 
 
-with open("tests/sample_products.csv", "rb") as csv_file:
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-    records = extract_records_from_csv(csv_file)
 
-    print("Extracted records:")
-    print(records)
+def test_extract_records_from_csv():
+    csv_file = PROJECT_ROOT / "tests" / "sample_products.csv"
+
+    with csv_file.open("rb") as file:
+        records = extract_records_from_csv(file)
+
+    assert isinstance(records, list)
+    assert len(records) > 0
+    assert isinstance(records[0], dict)

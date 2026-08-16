@@ -1,11 +1,16 @@
-import sys
-
-sys.path.insert(0, "src")
+from pathlib import Path
 
 from parser.excel_parser import extract_records_from_excel
 
 
-records = extract_records_from_excel("tests/CSV_UniHack.xlsx")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-print("Extracted records:")
-print(records)
+
+def test_extract_records_from_excel():
+    excel_file = PROJECT_ROOT / "tests" / "sample_products.xlsx"
+
+    records = extract_records_from_excel(excel_file)
+
+    assert isinstance(records, list)
+    assert len(records) > 0
+    assert isinstance(records[0], dict)

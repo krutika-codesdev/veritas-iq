@@ -14,3 +14,8 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+# Generated test outputs
+tests/outputs/
+
+# Local source archives
+veritas-iq-source.zip
