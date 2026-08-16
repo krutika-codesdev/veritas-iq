@@ -1,0 +1,144 @@
+@startuml VeritasIQ_Architecture
+
+!theme plain
+skinparam backgroundColor #F8FAFC
+skinparam shadowing true
+skinparam roundcorner 18
+
+skinparam component {
+    BackgroundColor #FFFFFF
+    BorderColor #475569
+    FontColor #0F172A
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam package {
+    BorderColor #64748B
+    FontColor #1E293B
+    FontSize 15
+    FontStyle bold
+}
+
+skinparam ArrowColor #6366F1
+skinparam ArrowThickness 2
+
+title <size:25><color:#312E81>VeritasIQ Architecture</color></size>\n<size:15>AI-Powered Product Intelligence for Industrial Commerce</size>
+
+package "INPUT LAYER" #E0F2FE {
+
+    [PDF Parser] as PDF
+    [CSV Parser] as CSV
+    [Excel Parser] as XLS
+    [UniHack Product Input] as INPUT
+}
+
+package "AI ENRICHMENT LAYER" #EDE9FE {
+
+    [Gemini Extraction Engine] as AI
+    [Google Search\nGrounding] as SEARCH
+    [Source Discovery] as DISCOVERY
+    [Raw Enrichment\nResult] as RAW
+}
+
+package "CANONICAL DATA LAYER" #FEF3C7 {
+
+    [Product Schema] as SCHEMA
+    [Category-specific\nAttributes] as CATEGORY
+    [Product Adapter] as ADAPTER
+}
+
+package "INTELLIGENCE & TRUST LAYER" #DCFCE7 {
+
+    [Normalization Engine] as NORM
+    [Cross-source\nValidation Engine] as VALID
+    [Evidence &\nProvenance] as EVIDENCE
+    [Explainability Engine] as EXPLAIN
+    [Product Health\nScore] as SCORE
+}
+
+package "DELIVERY LAYER" #FCE7F3 {
+
+    [252-column\nUniHack Formatter] as FORMAT
+    database "SQLite" as DB
+}
+
+package "PRESENTATION LAYER" #F1F5F9 {
+
+    [Streamlit UI] as UI
+    [Structured CSV\nExport] as EXPORT
+}
+
+PDF --> AI
+CSV --> AI
+XLS --> AI
+INPUT --> AI
+
+AI --> SEARCH
+SEARCH --> DISCOVERY
+DISCOVERY --> RAW
+AI --> RAW
+
+RAW --> ADAPTER
+ADAPTER --> SCHEMA
+SCHEMA --> CATEGORY
+SCHEMA --> NORM
+
+NORM --> VALID
+
+VALID --> EVIDENCE
+VALID --> EXPLAIN
+VALID --> SCORE
+
+EVIDENCE --> SCORE
+EXPLAIN --> UI
+SCORE --> UI
+
+SCHEMA --> DB
+NORM --> DB
+VALID --> DB
+EVIDENCE --> DB
+SCORE --> DB
+
+SCHEMA --> FORMAT
+FORMAT --> EXPORT
+
+DB --> UI
+DB --> EXPORT
+
+note top of AI
+  Gemini generates candidate
+  product intelligence.
+end note
+
+note right of SEARCH
+  Live web-grounded
+  product discovery.
+  Official manufacturer
+  sources are preferred.
+end note
+
+note right of VALID
+  Core VeritasIQ
+  differentiator:
+  validate instead of
+  blindly trusting AI.
+end note
+
+note bottom of EVIDENCE
+  Important claims retain
+  source URLs and provenance.
+end note
+
+note bottom of FORMAT
+  Exact 252-column
+  UniHack delivery schema.
+end note
+
+note bottom of DB
+  MVP: SQLite
+  Production: replaceable
+  with PostgreSQL / cloud DB
+end note
+
+@enduml

@@ -1,0 +1,119 @@
+@startuml VeritasIQ_Process_Flow
+
+!theme plain
+skinparam backgroundColor #F7F9FC
+skinparam shadowing true
+skinparam roundcorner 20
+
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #334155
+    FontColor #0F172A
+    FontSize 14
+    FontStyle bold
+}
+
+skinparam ArrowColor #6366F1
+skinparam ArrowThickness 2
+
+title <size:24><color:#312E81>VeritasIQ</color></size>\n<size:16>From Limited Product Data → Trusted Commerce-ready Product Intelligence</size>
+
+start
+
+:Receive Product Input;
+
+partition "INPUT & INGESTION" #E0F2FE {
+
+    fork
+        :PDF;
+    fork again
+        :CSV;
+    fork again
+        :Excel;
+    fork again
+        :UniHack Catalogue Row;
+    end fork
+
+    :Parse Source Data;
+}
+
+partition "AI ENRICHMENT" #EDE9FE {
+
+    :Send Product Identity\nto Gemini;
+
+    :Perform Web-grounded\nProduct Discovery;
+
+    :Identify Exact Product\nand Relevant Sources;
+
+    :Extract Source-supported\nProduct Attributes;
+}
+
+if (Exact Product Match?) then (YES)
+
+    :Preserve Resolved\nProduct Identity;
+
+else (NO)
+
+    :Return Uncertain /\nMissing Fields;
+
+endif
+
+partition "CANONICAL DATA" #FEF3C7 {
+
+    :Build Canonical\nProduct Record;
+
+    :Map Extracted Data\nto Product Schema;
+
+    :Keep Unsupported Fields\nas null;
+}
+
+partition "DATA INTELLIGENCE" #FFF7D6 {
+
+    :Normalize Values;
+
+    :Compare Information\nAcross Sources;
+
+    if (Sources Agree?) then (YES)
+
+        :Mark Attribute\nVerified;
+
+    else (NO)
+
+        :Detect Conflict;
+
+        :Preserve Conflicting\nValues;
+    endif
+}
+
+partition "TRUST & EXPLAINABILITY" #DCFCE7 {
+
+    :Attach Evidence\nand Provenance;
+
+    :Generate Validation\nExplanation;
+
+    :Calculate Product\nHealth Score;
+}
+
+partition "COMMERCE OUTPUT" #FCE7F3 {
+
+    :Create Structured\nProduct Record;
+
+    :Format Exact 252-column\nUniHack Delivery Schema;
+
+    :Display Product\nIntelligence;
+
+    :Export Commerce-ready\nData;
+}
+
+stop
+
+legend right
+|<#E0F2FE>  | Input & Ingestion |
+|<#EDE9FE>  | AI Enrichment |
+|<#FEF3C7>  | Canonical Data |
+|<#FFF7D6>  | Data Intelligence |
+|<#DCFCE7>  | Trust & Explainability |
+|<#FCE7F3>  | Commerce Output |
+endlegend
+
+@enduml

@@ -1,0 +1,122 @@
+@startuml VeritasIQ_Use_Case
+
+!theme plain
+skinparam backgroundColor #F8FAFC
+skinparam shadowing true
+
+skinparam actor {
+    BackgroundColor #312E81
+    BorderColor #1E1B4B
+    FontColor white
+    FontSize 15
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6366F1
+    FontColor #1E1B4B
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam rectangle {
+    BackgroundColor #EEF2FF
+    BorderColor #6366F1
+    FontColor #1E1B4B
+    FontSize 16
+    FontStyle bold
+    RoundCorner 25
+}
+
+skinparam ArrowColor #64748B
+skinparam ArrowThickness 2
+
+title <size:24><color:#312E81>VeritasIQ</color></size>\n<size:16>AI-Powered Product Intelligence Use Cases</size>
+
+actor "Catalog Manager" as User
+actor "Product Data Sources" as Sources
+actor "Gemini + Web Search" as AI
+
+rectangle "VeritasIQ Product Intelligence Platform" {
+
+    usecase "Upload Product\nDocuments" as UC1
+
+    usecase "Identify Product\nfrom Limited Input" as UC2
+
+    usecase "Discover Authoritative\nSources" as UC3
+
+    usecase "Extract Product\nInformation" as UC4
+
+    usecase "Normalize\nAttributes" as UC5
+
+    usecase "Compare Multiple\nSources" as UC6
+
+    usecase "Detect Data\nConflicts" as UC7
+
+    usecase "View Evidence &\nProvenance" as UC8
+
+    usecase "View Validation\nExplanation" as UC9
+
+    usecase "Review Product\nHealth Score" as UC10
+
+    usecase "Generate Structured\nProduct Record" as UC11
+
+    usecase "Export Commerce-ready\nData" as UC12
+
+    usecase "Store Product\nRecord" as UC13
+}
+
+Sources --> UC1
+User --> UC1
+
+AI --> UC2
+AI --> UC3
+AI --> UC4
+
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC12
+
+UC1 --> UC2
+UC2 --> UC3
+UC3 --> UC4
+UC4 --> UC5
+UC5 --> UC6
+UC6 --> UC7
+UC7 --> UC8
+UC8 --> UC9
+UC9 --> UC10
+UC10 --> UC11
+UC11 --> UC12
+UC12 --> UC13
+
+note right of UC3
+  Live web-grounded discovery.
+  Prefer official manufacturer
+  sources whenever available.
+end note
+
+note right of UC7
+  Core VeritasIQ
+  differentiator:
+  detect conflicts instead
+  of blindly trusting AI.
+end note
+
+note bottom of UC8
+  Evidence preserves the
+  source behind important
+  product claims.
+end note
+
+note bottom of UC10
+  Health Score summarizes
+  completeness, consistency,
+  validation and evidence.
+end note
+
+@enduml
