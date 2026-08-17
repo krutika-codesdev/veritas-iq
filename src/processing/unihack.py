@@ -23,31 +23,33 @@ UNIHACK_INPUT_FIELDS = [
 ATTRIBUTE_SLOTS = 50
 
 
-def clean_placeholder(value: Any) -> str | None:
-    """Convert known catalogue placeholders to None."""
+def clean_placeholder(value: str | None) -> str | None:
+    """
+    Normalize UniHack input values.
+
+    Empty strings, whitespace-only values, and known placeholder
+    values are converted to None.
+    """
 
     if value is None:
         return None
 
-    value = str(value).strip()
+    value = value.strip()
 
     if not value:
         return None
 
     placeholders = {
-        "-- unbranded --",
-        "-- no unilog brand --",
-        "-- no dib brand --",
-        "-- no brand --",
-        "-- no manufacturer --",
-        "n/a",
-        "na",
-        "null",
-        "none",
-        "-",
+        "--",
+        "---",
+        "N/A",
+        "NA",
+        "NULL",
+        "NONE",
+        "UNKNOWN",
     }
 
-    if value.lower() in placeholders:
+    if value.upper() in placeholders:
         return None
 
     return value
@@ -242,8 +244,11 @@ def product_to_delivery_row(
 
     row["PART_NUMBER"] = product.part_number
     row["SKU - MY_PART_NUMBER"] = product.sku
-    row["MANUFACTURER_PART_NUMBER"] = product.product_code
+    row["MANUFACTURER_PART_NUMBER"] = product.model_number
     row["ALTERNATE_PART_NUMBER"] = product.alternate_part_number
+    row["UPC"] = product.upc
+    row["EAN"] = product.ean
+    row["GTIN"] = product.gtin
 
     # ---------------------------------------------------------
     # Manufacturer / brand

@@ -12,7 +12,10 @@ client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+MODEL = os.getenv(
+    "GEMINI_MODEL",
+    "gemini-3.6-flash",
+)
 
 
 def extract_unihack_product(
@@ -27,6 +30,7 @@ def extract_unihack_product(
     - identify the exact product using the MPN
     - prioritize manufacturer/official sources
     - extract only source-supported information
+    - distinguish product identifiers correctly
     - return structured attributes
     - preserve evidence URLs
     - avoid inventing missing information
@@ -74,6 +78,26 @@ CRITICAL RULES
    images, or specifications.
 10. Return ONLY valid JSON.
 
+IDENTIFIER RULES
+----------------
+11. model_number means the manufacturer/model identifier for the exact
+    product when explicitly identified by the source.
+12. product_code means a product/catalog/item code only when the source
+    explicitly identifies the value as a product/catalog/item code.
+13. UPC means the Universal Product Code. Never place a UPC in
+    model_number or product_code.
+14. EAN means the European Article Number. Never place an EAN in
+    model_number or product_code.
+15. GTIN means the Global Trade Item Number. Never place a GTIN in
+    model_number or product_code.
+16. SKU means a seller/distributor stock keeping unit. Do not treat a SKU
+    as a manufacturer part number unless the source explicitly identifies
+    it as such.
+17. If an identifier cannot be verified, return null.
+18. The input manufacturer part number may contain a distributor prefix
+    or formatting. Resolve the actual manufacturer identifier only when
+    authoritative evidence supports the resolution.
+
 Return this structure:
 
 {{
@@ -82,6 +106,9 @@ Return this structure:
     "product_name": null,
     "model_number": null,
     "product_code": null,
+    "upc": null,
+    "ean": null,
+    "gtin": null,
 
     "identity_resolution": {{
         "input_mpn": "{mfg_part_num}",
@@ -174,6 +201,16 @@ product.
 
 Do not create attributes merely because the output schema has space for
 them.
+
+IMPORTANT IDENTIFIER EXAMPLES:
+- If a source says "UPC: 008925172550", return:
+    "upc": "008925172550"
+  and do NOT return that value as "product_code".
+- If a source says "Manufacturer Part Number: DCB518ASTS06G",
+  return that identifier as the resolved manufacturer/model identifier.
+- If a source says "Product Code: ABC123", that may be returned as
+  "product_code": "ABC123".
+- If an identifier's meaning is unclear, return null instead of guessing.
 """
 
     try:
@@ -219,7 +256,11 @@ them.
         return {
             "status": "error",
             "message": f"Invalid JSON returned by Gemini: {e}",
-            "raw_response": raw_response if "raw_response" in locals() else None,
+            "raw_response": (
+                raw_response
+                if "raw_response" in locals()
+                else None
+            ),
         }
 
     except Exception as e:

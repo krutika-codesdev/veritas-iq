@@ -15,6 +15,7 @@ from src.models.schema import (
 
 def _none_if_empty(value: Any) -> Any:
     """Convert empty strings/lists/dicts to None where appropriate."""
+
     if value is None:
         return None
 
@@ -226,16 +227,51 @@ def product_from_extraction(
         or resolved_manufacturer
     )
 
-    # If the identity-resolution stage found a better MPN, prefer it.
+    # If identity resolution found a better manufacturer/model
+    # identifier, prefer it.
     model_number = (
         _none_if_empty(data.get("model_number"))
         or resolved_mpn
     )
 
-    product_code = (
-        _none_if_empty(data.get("product_code"))
-        or resolved_mpn
+    product_code = _none_if_empty(
+        data.get("product_code")
     )
+
+    # ---------------------------------------------------------
+    # Explicit commercial identifiers
+    # ---------------------------------------------------------
+
+    upc = _none_if_empty(
+        data.get("upc")
+    )
+
+    ean = _none_if_empty(
+        data.get("ean")
+    )
+
+    gtin = _none_if_empty(
+        data.get("gtin")
+    )
+
+    # ---------------------------------------------------------
+    # Defensive cleanup
+    #
+    # If the extractor incorrectly places an identifier such as
+    # UPC/EAN/GTIN in product_code, remove it from product_code
+    # when the same value is explicitly represented as that
+    # identifier.
+    # ---------------------------------------------------------
+
+    if product_code is not None:
+        if upc is not None and product_code == upc:
+            product_code = None
+
+        elif ean is not None and product_code == ean:
+            product_code = None
+
+        elif gtin is not None and product_code == gtin:
+            product_code = None
 
     product = Product(
         product_name=_none_if_empty(
@@ -251,6 +287,12 @@ def product_from_extraction(
         model_number=model_number,
 
         product_code=product_code,
+
+        upc=upc,
+
+        ean=ean,
+
+        gtin=gtin,
 
         product_type=_none_if_empty(
             data.get("product_type")

@@ -52,7 +52,7 @@ OUTPUT_PATH = (
 
 # Start small.
 # We can increase this after the pipeline passes.
-MAX_ROWS = 5
+MAX_ROWS = 1
 
 
 def main() -> None:

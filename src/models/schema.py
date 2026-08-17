@@ -63,14 +63,31 @@ class ProductContent(BaseModel):
 
 
 class Product(BaseModel):
+    # ---------------------------------------------------------
     # Existing VeritasIQ identity fields
+    # ---------------------------------------------------------
+
     product_name: str | None = None
     brand: str | None = None
     manufacturer: str | None = None
+
+    # The existing project uses model_number as the
+    # manufacturer/model identifier.
     model_number: str | None = None
+
+    # Product/catalog/item code.
     product_code: str | None = None
 
+    # Explicit commercial identifiers.
+    # These are kept separate from model_number/product_code.
+    upc: str | None = None
+    ean: str | None = None
+    gtin: str | None = None
+
+    # ---------------------------------------------------------
     # Existing/general product fields
+    # ---------------------------------------------------------
+
     product_type: str | None = None
     category: str | None = None
     subcategory: str | None = None
@@ -91,7 +108,10 @@ class Product(BaseModel):
     certifications: list[str] = Field(default_factory=list)
     included_items: list[str] = Field(default_factory=list)
 
+    # ---------------------------------------------------------
     # UniHack enrichment fields
+    # ---------------------------------------------------------
+
     classification: Classification | None = None
     attributes: list[ProductAttribute] = Field(default_factory=list)
     content: ProductContent | None = None
