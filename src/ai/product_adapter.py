@@ -2,16 +2,26 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.models.schema import (
-    Classification,
-    Dimensions,
-    Evidence,
-    Measurement,
-    Product,
-    ProductAttribute,
-    ProductContent,
-)
-
+try:
+    from src.models.schema import (
+        Classification,
+        Dimensions,
+        Evidence,
+        Measurement,
+        Product,
+        ProductAttribute,
+        ProductContent,
+    )
+except ModuleNotFoundError:
+    from models.schema import (
+        Classification,
+        Dimensions,
+        Evidence,
+        Measurement,
+        Product,
+        ProductAttribute,
+        ProductContent,
+    )
 
 def _none_if_empty(value: Any) -> Any:
     """Convert empty strings/lists/dicts to None where appropriate."""
@@ -80,6 +90,52 @@ def _build_evidence(
         )
 
     return evidence
+
+def _build_field_evidence(
+    data: dict[str, Any],
+) -> dict[str, list[Evidence]]:
+    """Convert field-level provenance into Evidence objects."""
+
+    raw_field_evidence = data.get("field_evidence") or {}
+
+    if not isinstance(raw_field_evidence, dict):
+        return {}
+
+    field_evidence: dict[str, list[Evidence]] = {}
+
+    for field, items in raw_field_evidence.items():
+
+        if not isinstance(items, list):
+            continue
+
+        evidence_items: list[Evidence] = []
+
+        for item in items:
+
+            if not isinstance(item, dict):
+                continue
+
+            url = _none_if_empty(item.get("url"))
+
+            if not url:
+                continue
+
+            evidence_items.append(
+                Evidence(
+                    url=url,
+                    source_type=_none_if_empty(
+                        item.get("source_type")
+                    ),
+                    description=_none_if_empty(
+                        item.get("description")
+                    ),
+                )
+            )
+
+        if evidence_items:
+            field_evidence[field] = evidence_items
+
+    return field_evidence
 
 
 def _build_classification(
@@ -317,6 +373,8 @@ def product_from_extraction(
         content=_build_content(data),
 
         evidence=_build_evidence(data),
+
+        field_evidence=_build_field_evidence(data),
 
         source_fields=source_fields or {},
 

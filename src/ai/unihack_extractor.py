@@ -72,6 +72,20 @@ CRITICAL RULES
 5. Preserve source-supported values.
 6. Include the URL supporting each important piece of information when
    possible.
+6a. When a source supports a specific field, record that source in
+    field_evidence under the corresponding canonical field name.
+6b. field_evidence must contain only sources that actually support
+    that specific field. Do not copy all product-level evidence into
+    every field.
+6c. Each field_evidence entry must use this structure:
+    {{
+        "url": "...",
+        "source_type": "...",
+        "description": "..."
+    }}
+6d. If a field has no directly traceable supporting source, return
+    an empty array for that field.
+
 7. If a field cannot be verified, return null.
 8. Extract category-specific specifications dynamically.
 9. Do not fabricate UPC, GTIN, SKU, dimensions, warranty, certifications,
@@ -167,6 +181,28 @@ Return this structure:
             "description": null
         }}
     ],
+
+    "field_evidence": {{
+        "manufacturer": [],
+        "brand": [],
+        "model_number": [],
+        "product_code": [],
+        "upc": [],
+        "ean": [],
+        "gtin": [],
+        "product_name": [],
+        "product_type": [],
+        "category": [],
+        "subcategory": [],
+        "dimensions": [],
+        "weight": [],
+        "material": [],
+        "color": [],
+        "size": [],
+        "warranty": [],
+        "certifications": [],
+        "included_items": []
+    }},
 
     "source_discovery": {{
         "query_used": null,

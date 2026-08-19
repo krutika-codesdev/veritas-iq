@@ -44,6 +44,30 @@ class Evidence(BaseModel):
     source_type: str | None = None
     description: str | None = None
 
+class FieldObservation(BaseModel):
+    """A value observed for a specific product field from one source."""
+
+    field: str
+    value: str | float | int | None = None
+    unit: str | None = None
+    source_url: str | None = None
+    source_type: str | None = None
+
+class FieldValidationResult(BaseModel):
+    """Explainable validation result for one product field."""
+
+    field: str
+    status: str
+    value: str | float | int | None = None
+    unit: str | None = None
+
+    agreement_count: int = 0
+    source_count: int = 0
+
+    confidence: float = 0.0
+    reason: str = ""
+
+    evidence: list[FieldObservation] = Field(default_factory=list)
 
 class Classification(BaseModel):
     dept: str | None = None
@@ -116,6 +140,12 @@ class Product(BaseModel):
     attributes: list[ProductAttribute] = Field(default_factory=list)
     content: ProductContent | None = None
     evidence: list[Evidence] = Field(default_factory=list)
+
+    # Field-level provenance used by validation and explainability.
+    # Key = canonical field name, value = supporting evidence sources.
+    field_evidence: dict[str, list[Evidence]] = Field(
+        default_factory=dict
+    )
 
     # Preserve the original six-column UniHack input.
     source_fields: dict[str, str | None] = Field(default_factory=dict)

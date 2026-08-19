@@ -15,6 +15,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.ai.unihack_provider import enrich_unihack_product
 from src.processing.unihack import product_to_delivery_row
+from src.processing.validator import validate_product
+from src.processing.health_score import calculate_product_health_score
 
 
 SCHEMA_PATH = (
@@ -64,6 +66,91 @@ def main() -> None:
         part_manuf=SOURCE_FIELDS["Part_Manuf"],
         source_fields=SOURCE_FIELDS,
     )
+
+    # ---------------------------------------------------------
+    # Validate important product fields
+    # ---------------------------------------------------------
+
+    validation_fields = [
+        "product_name",
+        "manufacturer",
+        "brand",
+        "model_number",
+        "upc",
+        "ean",
+        "gtin",
+        "weight",
+    ]
+
+    field_observations = {}
+
+    for field in validation_fields:
+        value = getattr(product, field, None)
+
+        evidence_items = product.field_evidence.get(
+            field,
+            [],
+        )
+
+        observations = []
+
+        for evidence in evidence_items:
+            observations.append(
+                {
+                    "field": field,
+                    "value": value,
+                    "source_url": evidence.url,
+                    "source_type": evidence.source_type,
+                }
+            )
+
+        field_observations[field] = observations
+
+    validation_results = validate_product(
+        field_observations
+    )
+
+    health_score = calculate_product_health_score(
+        validation_results,
+        validation_fields,
+    )
+
+    print()
+    print("FIELD VALIDATION")
+    print("----------------")
+
+    for field in validation_fields:
+        result = validation_results[field]
+
+        print(
+            f"{field}: "
+            f"{result['status']} "
+            f"(confidence={result['confidence']})"
+        )
+
+    print()
+    print("PRODUCT HEALTH SCORE")
+    print("--------------------")
+    print(health_score)
+
+    print()
+    print("FIELD EVIDENCE")
+    print("-------------")
+
+    for field in validation_fields:
+        evidence = product.field_evidence.get(
+            field,
+            [],
+        )
+
+        print(
+            f"{field}: {len(evidence)} source(s)"
+        )
+
+        for item in evidence:
+            print(
+                f"  - {item.source_type}: {item.url}"
+            )
 
     print("Building 252-column delivery row...")
 
