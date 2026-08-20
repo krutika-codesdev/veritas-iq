@@ -297,8 +297,8 @@ else:
             st.metric(
                 "Validated Fields",
                 sum(
-                    result.status == "validated"
-                    for result in st.session_state["validation_results"]
+                    result.get("status") == "agreement"
+                    for result in st.session_state["validation_results"].values()
                 ),
             )
 
