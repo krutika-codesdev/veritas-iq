@@ -282,7 +282,10 @@ else:
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric("Health Score", f"{st.session_state['health_score']:.1f}%")
+            st.metric(
+                "Health Score",
+                f"{st.session_state['health_score']['score']:.1f}%",
+            )
 
         with col2:
             st.metric(
