@@ -7,8 +7,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import csv
 import io
-from pathlib import Path
-
 import streamlit as st
 
 from src.ai.unihack_provider import enrich_unihack_product
@@ -274,3 +272,173 @@ else:
         st.session_state[
             "health_score"
         ] = health_score
+
+        st.success("Product intelligence generated successfully.")
+
+        st.subheader("Product Intelligence")
+
+        product = st.session_state["product"]
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Health Score", f"{st.session_state['health_score']:.1f}%")
+
+        with col2:
+            st.metric(
+                "Evidence Sources",
+                len(product.evidence),
+            )
+
+        with col3:
+            st.metric(
+                "Validated Fields",
+                sum(
+                    result.status == "validated"
+                    for result in st.session_state["validation_results"]
+                ),
+            )
+
+        st.write("### Core Product Information")
+
+        product_info = {
+            "Product Name": product.product_name,
+            "Brand": product.brand,
+            "Manufacturer": product.manufacturer,
+            "Model Number": product.model_number,
+            "Product Type": product.product_type,
+            "Category": product.category,
+            "Subcategory": product.subcategory,
+            "UPC": product.upc,
+            "EAN": product.ean,
+            "GTIN": product.gtin,
+            "Country of Origin": product.country_of_origin,
+            "Intended Use": product.intended_use,
+            "Material": product.material,
+            "Size": product.size,
+        }
+
+        st.dataframe(
+            {
+                "Field": list(product_info.keys()),
+                "Value": list(product_info.values()),
+            },
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        if product.classification:
+            st.write("### Classification")
+
+            st.dataframe(
+                {
+                    "Field": [
+                        "Department",
+                        "Class",
+                        "Fine",
+                        "Classpath",
+                    ],
+                    "Value": [
+                        product.classification.dept,
+                        product.classification.class_name,
+                        product.classification.fine,
+                        product.classification.classpath,
+                    ],
+                },
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        if product.attributes:
+            st.write("### Product Attributes")
+
+            st.dataframe(
+                [
+                    {
+                        "Attribute": attribute.label,
+                        "Value": attribute.value,
+                        "Unit": attribute.unit,
+                        "Confidence": attribute.confidence,
+                        "Source": attribute.source_url,
+                    }
+                    for attribute in product.attributes
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        if product.content:
+            st.write("### Commerce Content")
+
+            if product.content.short:
+                st.write("**Short Description**")
+                st.write(product.content.short)
+
+            if product.content.long:
+                st.write("**Long Description**")
+                st.write(product.content.long)
+
+            if product.content.features:
+                st.write("**Features**")
+                for feature in product.content.features:
+                    st.write(f"- {feature}")
+
+        st.write("### Validation")
+
+        validation_table = [
+            {
+                "Field": result.field,
+                "Status": result.status,
+                "Value": result.value,
+                "Agreement": (
+                    f"{result.agreement_count}/"
+                    f"{result.source_count}"
+                ),
+                "Confidence": result.confidence,
+                "Reason": result.reason,
+            }
+            for result in st.session_state["validation_results"]
+        ]
+
+        st.dataframe(
+            validation_table,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        if product.evidence:
+            st.write("### Evidence")
+
+            for evidence in product.evidence:
+                st.markdown(
+                    f"**{evidence.source_type or 'Source'}** — "
+                    f"{evidence.description or 'Supporting evidence'}"
+                )
+                st.write(evidence.url)
+
+        st.write("### 252-Column Delivery Output")
+
+        delivery_headers = get_delivery_headers(SCHEMA_PATH)
+
+        delivery_row = product_to_delivery_row(
+            product,
+            delivery_headers,
+        )
+
+        output = io.StringIO()
+
+        writer = csv.DictWriter(
+            output,
+            fieldnames=delivery_headers,
+        )
+
+        writer.writeheader()
+        writer.writerow(delivery_row)
+
+        st.download_button(
+            "Download 252-Column Product",
+            data=output.getvalue(),
+            file_name="veritasiq_product_delivery.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
