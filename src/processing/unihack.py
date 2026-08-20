@@ -479,3 +479,72 @@ def write_delivery_csv(
 
         writer.writeheader()
         writer.writerows(rows)
+
+def process_unihack_records(
+    records: list[dict[str, Any]],
+    delivery_headers: list[str],
+    validation_fields: list[str],
+) -> list[dict[str, Any]]:
+    """
+    Enrich and validate multiple UniHack input records.
+
+    This function reuses the existing single-product enrichment,
+    validation, health-score, and delivery-formatting logic.
+    """
+
+    from src.ai.unihack_provider import enrich_unihack_product
+    from src.processing.health_score import calculate_product_health_score
+    from src.processing.validator import validate_product_fields
+
+    delivery_rows = []
+
+    for record in records:
+        mfg_part_num = str(
+            record.get("Mfg_Part_Num") or ""
+        ).strip()
+
+        part_desc = str(
+            record.get("Part_Desc") or ""
+        ).strip()
+
+        part_manuf = record.get("Part_Manuf")
+
+        if not mfg_part_num:
+            raise ValueError(
+                "UniHack input record is missing Mfg_Part_Num."
+            )
+
+        if not part_desc:
+            raise ValueError(
+                f"UniHack input record '{mfg_part_num}' "
+                "is missing Part_Desc."
+            )
+
+        if part_manuf is not None:
+            part_manuf = str(part_manuf).strip() or None
+
+        product = enrich_unihack_product(
+            mfg_part_num=mfg_part_num,
+            part_desc=part_desc,
+            part_manuf=part_manuf,
+            source_fields=record,
+        )
+
+        validation_results, _ = validate_product_fields(
+            product,
+            validation_fields,
+        )
+
+        calculate_product_health_score(
+            validation_results,
+            validation_fields,
+        )
+
+        delivery_rows.append(
+            product_to_delivery_row(
+                product,
+                delivery_headers,
+            )
+        )
+
+    return delivery_rows

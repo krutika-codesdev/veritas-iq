@@ -241,3 +241,42 @@ def validate_product(
         )
 
     return results
+
+def validate_product_fields(
+    product,
+    fields: list[str],
+) -> tuple[dict[str, dict], dict[str, list]]:
+    """
+    Build field observations from a canonical Product and validate
+    each requested field using its field-level evidence.
+    """
+
+    field_observations = {}
+
+    for field in fields:
+        value = getattr(product, field, None)
+
+        evidence_items = product.field_evidence.get(
+            field,
+            [],
+        )
+
+        observations = []
+
+        for evidence in evidence_items:
+            observations.append(
+                {
+                    "field": field,
+                    "value": value,
+                    "source_url": evidence.url,
+                    "source_type": evidence.source_type,
+                }
+            )
+
+        field_observations[field] = observations
+
+    validation_results = validate_product(
+        field_observations
+    )
+
+    return validation_results, field_observations

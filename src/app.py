@@ -1,380 +1,271 @@
+from __future__ import annotations
+
+import csv
+import io
+from pathlib import Path
+
 import streamlit as st
 
-from processing.mapper import (
-    map_record_to_common_format,
-    map_ai_result_to_common_format,
+from src.ai.unihack_provider import enrich_unihack_product
+from src.processing.health_score import calculate_product_health_score
+
+from src.processing.unihack import (
+    get_delivery_headers,
+    process_unihack_records,
+    product_to_delivery_row,
+    read_unihack_input,
+    write_delivery_csv,
 )
-from processing.matcher import products_match
-from processing.validator import validate_weight
+from src.parser.csv_parser import extract_records_from_csv
+from src.parser.excel_parser import extract_records_from_excel
 
-from processing.health_score import calculate_health_score
+from src.processing.validator import validate_product_fields
+from src.storage.database import init_db, save_product
 
-from parser.pdf_parser import extract_text_from_pdf
-from parser.csv_parser import extract_records_from_csv
-from parser.excel_parser import extract_records_from_excel
-from ai.extractor import extract_product_information
-from processing.normalizer import normalize_weight
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "tests"
+    / "Unihack_ Expected Output - Delivery Format.csv"
+)
+
+VALIDATION_FIELDS = [
+    "product_name",
+    "manufacturer",
+    "brand",
+    "model_number",
+    "upc",
+    "ean",
+    "gtin",
+    "weight",
+]
+
 
 st.set_page_config(
     page_title="VeritasIQ",
     page_icon="📦",
-    layout="wide"
+    layout="wide",
 )
+
+
+init_db()
+
 
 st.title("VeritasIQ")
-st.subheader("AI-powered Product Intelligence Platform")
+st.subheader("AI-Powered Product Intelligence for Industrial Commerce")
 
-st.info("Stage 1: Multi-source Product Ingestion")
-
-uploaded_files = st.file_uploader(
-    "Upload Product Sources",
-    type=["pdf", "csv", "xlsx"],
-    accept_multiple_files=True
+st.markdown(
+    """
+Turn sparse industrial product information into structured,
+validated and evidence-backed product intelligence.
+"""
 )
 
-pdf_records = []
-csv_records_common = []
-excel_records_common = []
+st.divider()
 
-if uploaded_files:
+st.header("1. Product Input")
 
-    st.success(f"{len(uploaded_files)} source(s) uploaded")
+input_mode = st.radio(
+    "Choose input method",
+    ["Manual Product", "CSV / XLSX Catalog"],
+    horizontal=True,
+)
 
-    for uploaded_file in uploaded_files:
+if input_mode == "CSV / XLSX Catalog":
 
-        st.divider()
-        st.subheader(f"Source: {uploaded_file.name}")
+    uploaded_file = st.file_uploader(
+        "Upload product catalog",
+        type=["csv", "xlsx"],
+        help=(
+            "Expected fields include Mfg_Part_Num, Part_Desc, "
+            "and Part_Manuf."
+        ),
+    )
 
-        if uploaded_file.name.lower().endswith(".pdf"):
+    if uploaded_file is not None:
 
-            extracted_text = extract_text_from_pdf(uploaded_file)
-
-            ai_response = extract_product_information(extracted_text)
-
-            if isinstance(ai_response, dict) and ai_response.get("status") != "error":
-                pdf_common = map_ai_result_to_common_format(ai_response)
-                pdf_records.append(pdf_common)
-
-            if isinstance(ai_response, dict) and "weight" in ai_response:
-                normalized_weight = normalize_weight(ai_response["weight"])
-                ai_response["weight"] = (
-                    normalized_weight.model_dump()
-                    if normalized_weight
-                    else None
-                )
-
-            st.subheader("Extracted Text")
-
-            st.text_area(
-                label="PDF Content",
-                value=extracted_text,
-                height=400,
-                key=f"pdf_text_{uploaded_file.name}"
-            )
-
-            st.subheader("AI Extraction")
-
-            if isinstance(ai_response, dict) and ai_response.get("status") == "error":
-                st.warning("Gemini API is currently unavailable.")
-                st.text(ai_response["message"])
-            else:
-                st.json(ai_response)
-
-        elif uploaded_file.name.lower().endswith(".csv"):
-
+        if uploaded_file.name.lower().endswith(".csv"):
             records = extract_records_from_csv(uploaded_file)
-
-            common_records = [
-                map_record_to_common_format(record)
-                for record in records
-            ]
-
-            csv_records_common.extend(common_records)
-
-            st.subheader("CSV Records")
-            st.write(records)
-
-        elif uploaded_file.name.lower().endswith(".xlsx"):
-
+        else:
             records = extract_records_from_excel(uploaded_file)
 
-            common_records = [
-                map_record_to_common_format(record)
-                for record in records
+        st.info(
+            f"Loaded {len(records)} product records."
+        )
+
+        process_catalog_clicked = st.button(
+            "Process Catalog",
+            type="primary",
+            use_container_width=True,
+        )
+
+        if process_catalog_clicked:
+
+            try:
+                delivery_headers = get_delivery_headers(
+                    SCHEMA_PATH
+                )
+
+                with st.spinner(
+                    "Processing catalog..."
+                ):
+                    delivery_rows = process_unihack_records(
+                        records=records,
+                        delivery_headers=delivery_headers,
+                        validation_fields=VALIDATION_FIELDS,
+                    )
+
+                st.session_state[
+                    "batch_delivery_rows"
+                ] = delivery_rows
+
+                st.success(
+                    f"Successfully processed "
+                    f"{len(delivery_rows)} products."
+                )
+
+            except Exception as exc:
+                st.error(
+                    "Catalog processing is currently unavailable."
+                )
+                st.caption(
+                    "No fixture or mocked result was substituted."
+                )
+                st.code(str(exc))
+
+        if "batch_delivery_rows" in st.session_state:
+
+            delivery_rows = st.session_state[
+                "batch_delivery_rows"
             ]
 
-            excel_records_common.extend(common_records)
+            st.subheader("Catalog Results")
 
-            st.subheader("Excel Records")
-            st.write(records)
+            st.metric(
+                "Products Processed",
+                len(delivery_rows),
+            )
 
-    # --------------------------------------------------
-    # Product-level validation
-    # --------------------------------------------------
+            output = io.StringIO()
 
-    all_records = []
+            writer = csv.DictWriter(
+                output,
+                fieldnames=delivery_headers,
+            )
 
-    for record in pdf_records:
-        all_records.append({
-        "source": "PDF",
-        "record": record,
-        })
+            writer.writeheader()
+            writer.writerows(delivery_rows)
 
-    for record in csv_records_common:
-        all_records.append({
-        "source": "CSV",
-        "record": record,
-        })
+            st.download_button(
+                "Download 252-Column Catalog",
+                data=output.getvalue(),
+                file_name="veritasiq_catalog_delivery.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
 
-    for record in excel_records_common:
-        all_records.append({
-        "source": "Excel",
-        "record": record,
-       })
+else:
 
+    col1, col2 = st.columns(2)
 
-    matched_group = None
+    with col1:
+        manufacturer = st.text_input(
+            "Manufacturer / Source",
+            placeholder="e.g. 3M",
+        )
 
-    for base_item in all_records:
+        mpn = st.text_input(
+            "Manufacturer Part Number",
+            placeholder="e.g. 3MABR-7100075678",
+        )
 
-        base_record = base_item["record"]
+    with col2:
+        description = st.text_area(
+            "Product Description",
+            placeholder="Enter the available product description",
+            height=120,
+        )
 
-        matches = []
+    enrich_clicked = st.button(
+        "Enrich Product",
+        type="primary",
+        use_container_width=True,
+    )
 
-        for candidate_item in all_records:
+    if enrich_clicked:
 
-            candidate_record = candidate_item["record"]
+        if not mpn.strip():
+            st.error(
+                "Manufacturer Part Number is required."
+            )
+            st.stop()
 
-            if products_match(base_record, candidate_record):
-                matches.append(candidate_item)
+        if not description.strip():
+            st.error(
+                "Product Description is required."
+            )
+            st.stop()
 
-        sources = {
-            item["source"]
-            for item in matches
+        source_fields = {
+            "Mfg_Part_Num": mpn.strip(),
+            "Part_Desc": description.strip(),
+            "E1_Brand": None,
+            "Unilog_Brand": None,
+            "DIB_Brand": None,
+            "Part_Manuf": (
+                manufacturer.strip()
+                or None
+            ),
         }
 
-        if {"PDF", "CSV", "Excel"}.issubset(sources):
-            matched_group = matches
-            break
-
-
-    if matched_group:
-
-        st.divider()
-        st.header("Product Validation")
-
-        product_names = [
-            item["record"].get("product_name")
-            for item in matched_group
-        ]
-
-    st.subheader("Matched Product")
-
-    st.write(" / ".join(product_names))
-
-
-    # --------------------------------------------------
-    # Collect weights
-    # --------------------------------------------------
-
-    weight_values = []
-
-    for item in matched_group:
-
-        source = item["source"]
-        record = item["record"]
-
-        raw_weight = record.get("weight")
-
-        if not raw_weight:
-            continue
-
-        if isinstance(raw_weight, dict):
-            weight_input = raw_weight
-        else:
-            weight_input = {
-                "value": raw_weight,
-                "unit": "g",
-            }
-
-        normalized_weight = normalize_weight(weight_input)
-
-        if normalized_weight:
-
-            weight_values.append({
-                "source": source,
-                "value": normalized_weight.value,
-                "unit": normalized_weight.unit,
-            })
-
-
-    # --------------------------------------------------
-    # Validate
-    # --------------------------------------------------
-
-    validation_result = validate_weight(weight_values)
-
-    health_score = calculate_health_score(
-                    weight_values,
-                    validation_result,
-                    expected_source_count=len(matched_group),
-    )
-
-    # --------------------------------------------------
-    # Explainability and evidence
-    # --------------------------------------------------
-
-    st.subheader("Validation Result")
-
-    status = validation_result.get("status")
-
-    if status == "conflict":
-        st.error("CONFLICT")
-
-    elif status == "agreement":
-        st.success("AGREEMENT")
-
-    elif status == "missing":
-        st.warning("MISSING")
-
-    else:
-        st.info(str(status))
-
-
-    agreement_count = validation_result.get("agreement_count")
-    source_count = validation_result.get("source_count")
-
-    if agreement_count is not None:
-        st.write(
-            f"**Source agreement:** "
-            f"{agreement_count} / {source_count}"
-        )
-
-
-    # --------------------------------------------------
-    # Source comparison
-    # --------------------------------------------------
-
-    st.subheader("Source Comparison")
-
-    evidence = validation_result.get("evidence", [])
-
-    for item in evidence:
-
-        source = item["source"]
-        value = item["value"]
-        unit = item["unit"]
-
-        st.write(
-            f"**{source}** → {value} {unit}"
-        )
-
-
-    # --------------------------------------------------
-    # Explain the result
-    # --------------------------------------------------
-
-    if status == "conflict" and evidence:
-
-        st.subheader("Why this result?")
-
-        majority_value = validation_result.get("value")
-
-        if majority_value:
-
-            majority_text = (
-                f"{majority_value['value']} "
-                f"{majority_value['unit']}"
-            )
-
-            st.write(
-                f"**Majority value:** {majority_text}"
-            )
-
-            conflicting_sources = [
-                item["source"]
-                for item in evidence
-                if (
-                    item["value"] != majority_value["value"]
-                     or item["unit"] != majority_value["unit"]
-                    )
-            ]
-
-            if conflicting_sources:
-
-               st.write(
-                    "**Conflicting source(s):** "
-                    + ", ".join(conflicting_sources)
+        with st.spinner(
+            "Enriching product using AI and "
+            "web-grounded sources..."
+        ):
+            try:
+                product = enrich_unihack_product(
+                    mfg_part_num=mpn.strip(),
+                    part_desc=description.strip(),
+                    part_manuf=(
+                        manufacturer.strip()
+                        or None
+                    ),
+                    source_fields=source_fields,
                 )
 
-               st.info(
-                    f"{agreement_count} of {source_count} sources "
-                    f"agree on {majority_text}. "
-                    f"The remaining source(s) report a different value."
+            except Exception as exc:
+                st.error(
+                    "Product enrichment is currently unavailable."
                 )
 
+                st.caption(
+                    "No fixture or mocked result was used."
+                )
 
-    elif status == "agreement" and evidence:
+                st.code(str(exc))
 
-        majority_value = validation_result.get("value")
+                st.stop()
 
-        if majority_value:
-
-            st.info(
-                f"All available sources agree on "
-                f"{majority_value['value']} "
-                f"{majority_value['unit']}."
+        validation_results, _ = (
+            validate_product_fields(
+                product,
+                VALIDATION_FIELDS,
             )
+        )
 
-
-    elif status == "missing":
-
-            st.info(
-                "No source provided a valid weight for this product."
+        health_score = (
+            calculate_product_health_score(
+                validation_results,
+                VALIDATION_FIELDS,
             )
+        )
 
-
-    # --------------------------------------------------
-    # Validator explanation
-    # --------------------------------------------------
-
-    reason = validation_result.get("reason")
-
-    if reason:
-
-        st.write(f"**Validation reason:** {reason}")
-
-    # --------------------------------------------------
-    # Health Score
-    # --------------------------------------------------
-
-    st.subheader("Health Score")
-
-    score = health_score.get("score", 0.0)
-
-    st.metric(
-        label="Product Health Score",
-        value=f"{score:.1f} / 100",
-    )
-
-    components = health_score.get("components", {})
-
-    st.write(
-        f"**Agreement:** "
-        f"{components.get('agreement', 0.0):.1f}"
-    )
-
-    st.write(
-        f"**Completeness:** "
-        f"{components.get('completeness', 0.0):.1f}"
-    )
-
-    st.write(
-        f"**Evidence:** "
-        f"{components.get('evidence', 0.0):.1f}"
-    )
-
-    reason = health_score.get("reason")
-
-    if reason:
-        st.write(f"**Why?** {reason}")
+        st.session_state["product"] = product
+        st.session_state[
+            "validation_results"
+        ] = validation_results
+        st.session_state[
+            "health_score"
+        ] = health_score

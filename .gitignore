@@ -19,3 +19,6 @@ tests/outputs/
 
 # Local source archives
 veritas-iq-source.zip
+
+# Local SQLite database
+data/

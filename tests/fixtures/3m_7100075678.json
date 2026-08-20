@@ -107,6 +107,44 @@
     }
   ],
 
+  "field_evidence": {
+  "product_name": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifies the product associated with stock number 7100075678."
+    }
+  ],
+  "manufacturer": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifies 3M as the manufacturer."
+    }
+  ],
+  "brand": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifies the 3M brand."
+    }
+  ],
+  "model_number": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifies 7100075678 as the stock number."
+    }
+  ],
+  "product_code": [
+    {
+      "url": "https://multimedia.3m.com/mws/media/487781O/building-and-contractor-market-best-seller-catalog.pdf",
+      "source_type": "manufacturer",
+      "description": "3M catalogue identifies 7100075678 as the product stock number."
+    }
+  ]
+},
+
   "source_discovery": {
     "query_used": "\"3MABR-7100075678\"",
     "sources_found": [
