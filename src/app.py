@@ -390,17 +390,17 @@ else:
 
         validation_table = [
             {
-                "Field": result.field,
-                "Status": result.status,
-                "Value": result.value,
+                "Field": result.get("field"),
+                "Status": result.get("status"),
+                "Value": result.get("value"),
                 "Agreement": (
-                    f"{result.agreement_count}/"
-                    f"{result.source_count}"
+                    f"{result.get('agreement_count')}/"
+                    f"{result.get('source_count')}"
                 ),
-                "Confidence": result.confidence,
-                "Reason": result.reason,
+                "Confidence": result.get("confidence"),
+                "Reason": result.get("reason"),
             }
-            for result in st.session_state["validation_results"]
+            for result in st.session_state["validation_results"].values()
         ]
 
         st.dataframe(
