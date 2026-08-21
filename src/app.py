@@ -129,14 +129,12 @@ if input_mode == "CSV / XLSX Catalog":
                     f"{len(delivery_rows)} products."
                 )
 
-            except Exception as exc:
-                st.error(
-                    "Catalog processing is currently unavailable."
-                )
+            except Exception:
+                st.error("Catalog processing is currently unavailable.")
                 st.caption(
+                    "The catalog could not be processed. "
                     "No fixture or mocked result was substituted."
                 )
-                st.code(str(exc))
 
         if "batch_delivery_rows" in st.session_state:
 
@@ -238,17 +236,12 @@ else:
                     source_fields=source_fields,
                 )
 
-            except Exception as exc:
-                st.error(
-                    "Product enrichment is currently unavailable."
-                )
-
+            except Exception:
+                st.error("Product enrichment is currently unavailable.")
                 st.caption(
+                    "The AI enrichment service did not return a usable result. "
                     "No fixture or mocked result was used."
                 )
-
-                st.code(str(exc))
-
                 st.stop()
 
         validation_results, _ = (
