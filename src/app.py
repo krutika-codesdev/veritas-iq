@@ -52,6 +52,55 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+    <style>
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        h1 {
+            margin-bottom: 0.2rem;
+        }
+
+        h2 {
+            margin-top: 1.5rem;
+        }
+
+        h3 {
+            margin-top: 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+
+        div[data-testid="stMetric"] {
+            border: 1px solid #d9d9d9;
+            border-radius: 10px;
+            padding: 12px 16px;
+            background-color: #fafafa;
+        }
+
+        div[data-testid="stMetricLabel"] {
+            font-weight: 600;
+        }
+
+        div[data-testid="stMetricValue"] {
+            font-size: 1.8rem;
+        }
+
+        .stButton > button {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .stDownloadButton > button {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 init_db()
 
@@ -61,9 +110,9 @@ st.subheader("AI-Powered Product Intelligence for Industrial Commerce")
 
 st.markdown(
     """
-Turn sparse industrial product information into structured,
-validated and evidence-backed product intelligence.
-"""
+    Turn sparse industrial product information into **structured, validated,
+    and evidence-backed product intelligence**.
+    """
 )
 
 st.divider()
@@ -288,7 +337,7 @@ else:
 
         with col3:
             st.metric(
-                "Validated Fields",
+                "Cross-Validated Fields",
                 sum(
                     result.get("status") == "agreement"
                     for result in st.session_state["validation_results"].values()
@@ -410,7 +459,9 @@ else:
                     f"**{evidence.source_type or 'Source'}** — "
                     f"{evidence.description or 'Supporting evidence'}"
                 )
-                st.write(evidence.url)
+                st.markdown(
+                    f"[View source]({evidence.url})"
+                )
 
         st.write("### 252-Column Delivery Output")
 
