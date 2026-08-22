@@ -1,211 +1,264 @@
 # VeritasIQ
 
-<p align="center">
-  <h1 align="center">VeritasIQ</h1>
-  <p align="center">
-    <strong>AI-powered Product Intelligence Platform for Industrial Commerce</strong>
-  </p>
-  <p align="center">
-    Transforming fragmented product information into structured,
-    validated, evidence-backed product intelligence.
-  </p>
-</p>
+## AI-Powered Product Intelligence for Industrial Commerce
 
-<p align="center">
+VeritasIQ transforms limited and fragmented industrial product information into **structured, validated, evidence-backed product intelligence** ready for commerce and catalog workflows.
 
-**AI Extraction** • **Source Discovery** • **Validation** • **Evidence** • **Explainability** • **Health Scoring**
-
-</p>
+> **AI proposes. Validation decides.**
 
 ---
 
-## The Core Idea
+## Problem
 
-> **AI proposes product intelligence. VeritasIQ validates it against external
-> sources instead of blindly trusting the model.**
+Industrial product information is distributed across manufacturer websites, catalogs, technical documents, spreadsheets, supplier listings, and other digital sources.
 
-Industrial product information is often fragmented across PDFs, spreadsheets,
-supplier listings, manufacturer pages, and other sources.
+This creates recurring challenges:
 
-A conventional AI extraction system can produce a clean-looking answer while
-still containing incorrect product information.
+- Incomplete product information
+- Inconsistent specifications and units
+- Difficult cross-source verification
+- Manual catalog enrichment
+- Poor visibility into data confidence
+- Time-consuming preparation of commerce-ready product data
 
-VeritasIQ separates:
+A conventional AI extraction system can produce a clean-looking answer while still containing incorrect or unsupported product information.
 
-| Layer | Purpose |
-|---|---|
-| **Extraction** | What the source appears to say |
-| **Normalization** | Convert values into a consistent representation |
-| **Validation** | Compare information across sources |
-| **Evidence** | Retain supporting source URLs |
-| **Explainability** | Show why information is reliable or conflicting |
-| **Health Scoring** | Summarize product data quality |
-
-This makes VeritasIQ focused on **trustworthy product intelligence**, rather
-than extraction alone.
+VeritasIQ addresses this by combining **AI-powered enrichment, structured product representation, evidence, cross-source validation, explainability, and product health scoring**.
 
 ---
 
-# What VeritasIQ Does
+## Solution
 
-## Multi-source Ingestion
+VeritasIQ takes sparse product information and transforms it through an end-to-end intelligence pipeline:
 
-VeritasIQ supports product information from:
+```text
+Input
+  ↓
+Product Extraction & Normalization
+  ↓
+AI-Powered Enrichment
+  ↓
+Evidence Collection
+  ↓
+Field-Level Validation
+  ↓
+Product Health Score
+  ↓
+Structured Commerce Delivery
+```
 
-- PDF
-- CSV
-- Excel
-- UniHack structured product input
-
----
-
-## AI-powered Extraction
-
-Google Gemini extracts candidate product information while following strict
-extraction rules:
-
-- Do not invent unsupported information
-- Preserve source meaning
-- Keep brand and manufacturer separate
-- Keep product type, category, and subcategory separate
-- Preserve original values before normalization
-- Store category-specific information separately
-
-The AI extraction layer is intentionally separated from the validation layer.
+The system is designed to make product intelligence not only richer, but also **traceable and assessable**.
 
 ---
 
-## Web-grounded Product Enrichment
+## Key Features
 
-The UniHack enrichment pipeline can use Gemini with Google Search grounding
-to identify product information from external sources.
+### Multi-Format Ingestion
 
-The enrichment workflow can:
+The processing layer includes parsers for:
 
-- Resolve product identity
-- Identify manufacturer information
-- Identify manufacturer part numbers
-- Discover official manufacturer sources
-- Discover supporting distributor sources
-- Extract product attributes
-- Preserve evidence URLs
+- Individual product input
+- CSV catalogs
+- XLSX catalogs
+- PDF documents
 
-Official manufacturer sources are preferred when available.
+The current demonstrated Streamlit workflow focuses on individual product and CSV/XLSX catalog ingestion.
+
+### AI-Powered Product Enrichment
+
+Uses the **Google Gemini API** to generate structured product intelligence from limited product information.
+
+For the UniHack workflow, **Google Search grounding** is used to support web-grounded enrichment.
+
+The enrichment workflow can identify and structure information such as:
+
+- Product identity
+- Brand
+- Manufacturer
+- Manufacturer part number
+- Product type
+- Category
+- Subcategory
+- Dimensions
+- Weight
+- Material
+- Color
+- Size
+- Price
+- Warranty
+- Certifications
+- Included items
+- Category-specific attributes
+- Product content
+- Evidence
+- Product images
+- Specification sheets
+
+### Structured Product Representation
+
+Extracted information is converted into a common `Product` representation so that different input formats and product sources can be processed consistently.
+
+### Evidence & Explainability
+
+Generated product information is accompanied by available supporting evidence.
+
+Users can understand:
+
+- Which sources support a value
+- Whether available sources agree
+- Where conflicts exist
+- Why a validation result was produced
+
+### Field-Level Validation
+
+Product attributes are evaluated individually for consistency and support.
+
+Validation can identify:
+
+- Agreement
+- Partial support
+- Conflict
+- Missing information
+
+The system does not simply overwrite conflicting information; conflicts can be preserved and explained.
+
+### Product Health Score
+
+Validation results are summarized into a product-level health score to provide a quick view of product information quality.
+
+### Commerce-Ready Delivery
+
+For the UniHack challenge, enriched product intelligence is mapped into the required **252-column delivery format** and can be exported as CSV.
+
+The expected output headers are preserved.
+
+### Catalog-Scale Workflow
+
+The same processing architecture supports both individual product enrichment and catalog-oriented CSV/XLSX workflows.
 
 ---
 
-## Source Discovery
+## Why VeritasIQ Is Different
 
-VeritasIQ includes a source discovery component that:
+Many AI enrichment workflows focus primarily on generating product descriptions or filling missing fields.
 
-- Searches for candidate product sources
-- Uses MPN and description signals
-- Scores potential sources
-- Gives additional weight to manufacturer sources
-- Recognizes industrial distributors
-- Penalizes marketplace sources
-- Retrieves source content for further processing
+VeritasIQ focuses on the additional question:
 
-The goal is not simply to find *a* webpage.
+> **How trustworthy is the generated product information?**
 
-The goal is to identify **useful evidence for the product claim being evaluated**.
+The system therefore separates **generation** from **validation**.
+
+```text
+AI
+ ↓
+Proposes product intelligence
+ ↓
+Evidence + validation
+ ↓
+Measures consistency
+ ↓
+Health score
+ ↓
+Commerce-ready output
+```
+
+This makes uncertainty and data quality visible instead of treating every AI-generated value as equally reliable.
+
+The core idea is:
+
+> **AI proposes product intelligence. VeritasIQ validates it against available evidence instead of blindly trusting the model.**
 
 ---
 
-# Visual Overview
+## Architecture
 
-<p align="center">
-  <img src="docs/diagrams/architecture.png"
-       alt="VeritasIQ Architecture"
-       width="900">
-</p>
+The solution follows an end-to-end pipeline:
 
-<p align="center">
-  <em>Modular architecture for extracting, validating, explaining, and delivering product intelligence.</em>
-</p>
+**Product Input → Parsing & Mapping → AI Enrichment → Evidence & Sources → Field-Level Validation → Product Health Score → 252-Column Mapper → Commerce-Ready CSV**
+
+Detailed architecture and editable PlantUML diagrams are available in `docs/diagrams/`.
+
+### Architecture Diagram
+
+![VeritasIQ Architecture](docs/diagrams/architecture.png)
 
 ---
 
-# How VeritasIQ Works
+## How VeritasIQ Works
 
-<p align="center">
-  <img src="docs/diagrams/process_flow.png"
-       alt="VeritasIQ Process Flow"
-       width="900">
-</p>
-
-The pipeline follows a deliberate sequence:
+The processing workflow follows a deliberate sequence:
 
 | Stage | Purpose |
 |---|---|
 | **01 — Ingest** | Accept product information from multiple source formats |
 | **02 — Extract** | Use AI to identify candidate product information |
-| **03 — Discover** | Find relevant external product sources |
+| **03 — Discover / Enrich** | Identify relevant external product information |
 | **04 — Normalize** | Convert comparable values into consistent representations |
-| **05 — Validate** | Compare information across sources |
-| **06 — Evidence** | Preserve supporting source URLs |
-| **07 — Explain** | Explain agreements and conflicts |
+| **05 — Validate** | Compare information and evaluate field-level consistency |
+| **06 — Evidence** | Preserve available supporting source information |
+| **07 — Explain** | Surface agreements, conflicts, and validation outcomes |
 | **08 — Score** | Calculate product data health |
 | **09 — Deliver** | Produce structured, commerce-ready output |
 
+### Process Flow
+
+![VeritasIQ Process Flow](docs/diagrams/process_flow.png)
+
 ---
 
-# The Trust Layer
+## Trust Layer
 
-The most important architectural distinction in VeritasIQ is the separation
-between **AI extraction** and **cross-source validation**.
+The most important architectural distinction in VeritasIQ is the separation between **AI extraction** and **cross-source validation**.
 
 ```text
-                         PRODUCT SOURCE
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │  Gemini Extraction  │
-                    │                     │
-                    │ "What does the      │
-                    │  source appear      │
-                    │  to say?"           │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ Canonical Product   │
-                    │      Schema         │
-                    └──────────┬──────────┘
-                               │
-                 ┌─────────────┴─────────────┐
-                 ▼                           ▼
-       ┌─────────────────┐         ┌─────────────────┐
-       │ Source Discovery│         │  Normalization  │
-       └────────┬────────┘         └────────┬────────┘
-                │                           │
-                └─────────────┬─────────────┘
+                         PRODUCT INPUT
+                              │
                               ▼
                    ┌─────────────────────┐
-                   │ Cross-source        │
-                   │ Validation          │
+                   │  Gemini Enrichment  │
+                   │                     │
+                   │ Candidate product   │
+                   │ intelligence        │
                    └──────────┬──────────┘
                               │
-                ┌─────────────┼─────────────┐
-                ▼             ▼             ▼
-           Evidence      Explainability   Health
-           & Provenance                   Score
-                │             │             │
-                └─────────────┼─────────────┘
                               ▼
                    ┌─────────────────────┐
-                   │ Trusted Structured  │
-                   │ Product Data        │
-                   └─────────────────────┘
+                   │ Canonical Product   │
+                   │      Schema         │
+                   └──────────┬──────────┘
+                              │
+                 ┌────────────┴────────────┐
+                 ▼                         ▼
+       ┌─────────────────┐       ┌─────────────────┐
+       │ Evidence /      │       │ Normalization   │
+       │ Source Context  │       │                 │
+       └────────┬────────┘       └────────┬────────┘
+                │                         │
+                └────────────┬────────────┘
+                             ▼
+                  ┌─────────────────────┐
+                  │ Field-Level         │
+                  │ Validation          │
+                  └──────────┬──────────┘
+                             │
+               ┌─────────────┼─────────────┐
+               ▼             ▼             ▼
+          Evidence     Explainability    Health
+          & Provenance                 Score
+               │             │             │
+               └─────────────┼─────────────┘
+                             ▼
+                  ┌─────────────────────┐
+                  │ Trusted Structured  │
+                  │ Product Data        │
+                  └─────────────────────┘
 ```
 
----
-
-The validation layer determines whether information is:
+The validation layer evaluates whether information is:
 
 - Supported by available sources
-- Consistent across sources
-- Conflicting across sources
+- Consistent across available evidence
+- Conflicting
 - Incomplete
 - Backed by evidence
 
@@ -213,7 +266,7 @@ This is the core trust mechanism of the platform.
 
 ---
 
-# Canonical Product Model
+## Canonical Product Model
 
 Extracted information is converted into a common `Product` representation.
 
@@ -245,20 +298,17 @@ This provides a consistent representation before downstream processing.
 
 ---
 
-# Normalization & Validation
+## Normalization & Validation
 
-## Normalization
+### Normalization
 
-Product values can be normalized before comparison so that equivalent
-representations can be evaluated consistently.
+Product values can be normalized before comparison so that equivalent representations can be evaluated consistently.
 
 Weight normalization is currently supported as part of the validation pipeline.
 
-## Cross-source Validation
+### Cross-Source Validation
 
-VeritasIQ compares product information from multiple sources.
-
-The validation layer can identify:
+VeritasIQ evaluates product information using available evidence and can identify:
 
 - Agreement
 - Conflicting values
@@ -271,10 +321,9 @@ Conflicts can be preserved and explained.
 
 ---
 
-# Evidence & Explainability
+## Evidence & Explainability
 
-Validation results retain source information so that product claims can be
-traced back to supporting evidence.
+Validation results retain source information so that product claims can be traced back to available supporting evidence.
 
 Users can understand:
 
@@ -285,117 +334,357 @@ Users can understand:
 
 This turns a product value from:
 
-```text
-"AI says this is correct."
+> "AI says this is correct."
 
 into:
 
-> **"This value is supported by these sources, these sources agree,
-> and this is why VeritasIQ considers it reliable."**
-```
+> **"This value is supported by available evidence, these sources agree or conflict, and this is why VeritasIQ assigns its validation outcome."**
 
 ---
 
-# Use Cases
+## Product Health Score
 
-<p align="center">
-  <img src="docs/diagrams/use_case.png"
-       alt="VeritasIQ Use Cases"
-       width="850">
-</p>
+The validation results are summarized into a product-level health score.
 
-VeritasIQ is designed around the workflow of a product/catalogue manager:
+The score provides a compact view of the quality and consistency of the available product intelligence.
+
+Conceptually:
+
+```text
+Product Attributes
+       ↓
+Field-Level Validation
+       ↓
+Evidence / Consistency
+       ↓
+Health Contributions
+       ↓
+Overall Product Health Score
+```
+
+The health score is therefore a summary of validation outcomes rather than a replacement for field-level evidence.
+
+---
+
+## UniHack Challenge Workflow
+
+For the UniHack product intelligence challenge, VeritasIQ transforms limited product information into the expected structured output.
+
+The delivery pipeline:
+
+```text
+Limited Product Input
+        ↓
+AI Enrichment
+        ↓
+Structured Product Representation
+        ↓
+Validation & Evidence
+        ↓
+Product Health Assessment
+        ↓
+252-Column Delivery Mapping
+        ↓
+Commerce-Ready CSV
+```
+
+The delivery mapper populates the required **252-column schema** without modifying the expected output headers.
+
+Supporting challenge resources and sample data are maintained under `tests/`.
+
+---
+
+## Use Cases
+
+VeritasIQ is designed around the workflow of a product or catalog manager:
 
 - Upload product information
 - Extract product information
 - Normalize attributes
-- Compare multiple sources
+- Enrich missing information
+- Evaluate available evidence
+- Compare information
 - Detect conflicts
-- Review evidence
+- Review validation outcomes
 - Review product health
 - Export structured product data
 
----
+### Use-Case Diagram
 
-# Technology Stack
-
-| Layer | Technology |
-|---|---|
-| **Language** | Python |
-| **UI** | Streamlit |
-| **AI** | Google Gemini |
-| **Search Grounding** | Google Search |
-| **Data Validation** | Pydantic |
-| **Data Processing** | Pandas |
-| **PDF Processing** | pdfplumber |
-| **Excel Processing** | OpenPyXL |
-| **HTTP Retrieval** | Requests |
-| **Testing** | Pytest |
-| **Development Diagrams** | PlantUML |
+![VeritasIQ Use Cases](docs/diagrams/use_case.png)
 
 ---
 
-# Repository Documentation
+## Technology Stack
 
-## Architecture
+### AI & Enrichment
+
+- **Google Gemini API** — product intelligence generation
+- **Google Search Grounding** — web-grounded enrichment
+
+### Application
+
+- **Python** — application and processing logic
+- **Streamlit** — interactive web interface
+
+### Data Processing
+
+- **Pandas** — catalog processing
+- **Pydantic** — structured product models and validation
+- **Structured JSON** — standardized AI output
+- **pdfplumber** — PDF processing
+- **OpenPyXL** — Excel processing
+
+### Validation & Storage
+
+- **Python validation layer** — field-level consistency checks
+- **SQLite** — product/catalog persistence
+
+### Delivery
+
+- **CSV** — commerce-ready catalog delivery
+- **252-column delivery mapper** — maps enriched intelligence to the required UniHack schema
+
+### Development & Deployment
+
+- **Streamlit Community Cloud** — deployed MVP
+- **Git & GitHub** — version control
+- **Pytest** — automated testing
+- **PlantUML** — architecture, process-flow and use-case diagrams
+
+---
+
+## Project Structure
+
+```text
+veritas-iq/
+|
++-- src/
+|   +-- ai/              # AI extraction and enrichment
+|   +-- models/          # Product data models
+|   +-- parser/          # CSV, Excel and PDF parsing
+|   +-- processing/      # Validation, mapping, scoring and matching
+|   +-- storage/         # SQLite persistence
+|   +-- app.py           # Streamlit application
+|
++-- scripts/             # Evaluation and UniHack utilities
+|
++-- tests/               # Automated test suite and fixtures
+|
++-- docs/
+|   +-- PRD.md
+|   +-- schema_design.md
+|   +-- diagrams/        # Architecture and process diagrams
+|
++-- requirements.txt
++-- requirements-dev.txt
++-- README.md
+```
+
+---
+
+## Running Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/krutika-codesdev/veritas-iq.git
+cd veritas-iq
+```
+
+### 2. Create a virtual environment
+
+Windows:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+For development and testing:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+### 4. Configure environment variables
+
+Create a local `.env` file:
+
+```text
+GEMINI_API_KEY=your_api_key
+```
+
+**Never commit `.env` or API keys to GitHub.**
+
+### 5. Run the application
+
+```bash
+python -m streamlit run src/app.py
+```
+
+The application will be available at the local Streamlit URL shown in the terminal.
+
+---
+
+## Testing
+
+The repository includes automated tests covering parsing, mapping, matching, validation, health scoring, and the UniHack workflow.
+
+Run:
+
+```bash
+pytest -q
+```
+
+Current local validation:
+
+**11 tests passed**
+
+---
+
+## Known Limitation
+
+The current MVP uses web-grounded AI enrichment to identify supporting product information and sources.
+
+The returned URLs are **not independently verified by a separate crawler in the current implementation**.
+
+Therefore, the current validation layer should be understood as evidence-based and consistency-oriented rather than as an independent guarantee that every source URL is valid.
+
+Independent source verification is planned as a future enhancement.
+
+---
+
+## Project Status
+
+### Implemented
+
+- Multi-format product layer
+- CSV catalog processing
+- XLSX catalog processing
+- PDF parsing
+- AI-powered product extraction
+- Gemini-based product enrichment
+- Google Search grounded enrichment
+- Structured product representation
+- Product normalization
+- Field-level validation
+- Cross-source consistency checks
+- Evidence/provenance handling
+- Product Health Score
+- 252-column UniHack delivery mapping
+- CSV delivery generation
+- SQLite persistence
+- Automated test coverage
+- Architecture documentation
+- Streamlit MVP deployment
+
+### Demonstrated
+
+The enrichment workflow has been tested across different industrial product categories, including:
+
+- Freud
+- KitchenAid
+- DEWALT
+
+The same enrichment workflow was used without category-specific code changes.
+
+### Remaining Submission Work
+
+- Final MVP screenshots
+- Demo video
+- Final presentation
+- Final repository review
+
+---
+
+## Future Development
+
+Potential extensions include:
+
+1. **Independent Source Verification**
+
+   Independently validate discovered URLs and supporting evidence.
+
+2. **Large-Scale Catalog Processing**
+
+   Add optimized batching, parallel processing and stronger retry handling for enterprise-scale catalogs.
+
+3. **Document Intelligence**
+
+   Expand product intelligence extraction across manufacturer catalogs and technical datasheets.
+
+4. **Human-in-the-Loop Review**
+
+   Allow experts to review and approve low-confidence or conflicting attributes.
+
+5. **Continuous Product Updates**
+
+   Re-enrich products when source information changes.
+
+6. **Enterprise Integration**
+
+   Integrate product intelligence with PIM, ERP and e-commerce catalog systems.
+
+---
+
+## Repository Documentation
+
+### Architecture
 
 [View Architecture Diagram](docs/diagrams/architecture.png)
 
-## Process Flow
+### Process Flow
 
 [View Process Flow Diagram](docs/diagrams/process_flow.png)
 
-## Use Cases
+### Use Cases
 
 [View Use-Case Diagram](docs/diagrams/use_case.png)
 
-Editable PlantUML source files are also included in
-`docs/diagrams/`.
+Editable PlantUML source files are also included in `docs/diagrams/`.
 
 ---
 
-# Project Status
+## Links
 
-## Implemented
+**GitHub Repository**
 
-- [x] PDF ingestion
-- [x] CSV ingestion
-- [x] Excel ingestion
-- [x] AI product extraction
-- [x] Canonical product schema
-- [x] Product normalization
-- [x] Multi-source validation
-- [x] Validation explainability
-- [x] Evidence / provenance
-- [x] Product Health Score
-- [x] Web source discovery
-- [x] Gemini-powered UniHack enrichment
-- [x] Fixture-based enrichment
-- [x] UniHack product adapter
-- [x] 252-column delivery validation
-- [x] Delivery CSV generation
-- [x] Automated tests
-- [x] Architecture documentation
+https://github.com/krutika-codesdev/veritas-iq
 
-## In Progress
+**Live Prototype**
 
-- [ ] End-to-end production deployment
-- [ ] Final UI refinement
-- [ ] Full end-to-end demo workflow
-- [ ] Final hackathon presentation
+https://ztu5wqfhzvnm4xs4r5ha69.streamlit.app/
 
-## Future
+**Demo Video**
 
-- [ ] PostgreSQL / cloud persistence
-- [ ] Production-scale retrieval
-- [ ] Authentication
-- [ ] Expanded category-specific validation
-- [ ] Production monitoring
+_To be added before final submission._
 
 ---
 
-# Project Philosophy
+## Team
 
-```text
-Extract → Normalize → Validate → Explain → Trust
-```
+**Team:** VeritasIQ
+
+**Member:** Krutika P Mohanty
+
+---
+
+## Core Idea
+
+> **VeritasIQ turns limited industrial product information into structured, validated and evidence-backed product intelligence.**
+>
+> **AI proposes. Validation decides.**
