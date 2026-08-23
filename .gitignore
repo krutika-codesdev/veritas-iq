@@ -22,3 +22,5 @@ veritas-iq-source.zip
 
 # Local SQLite database
 data/
+
+*.mkv
