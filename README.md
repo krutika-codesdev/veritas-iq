@@ -671,7 +671,13 @@ https://ztu5wqfhzvnm4xs4r5ha69.streamlit.app/
 
 **Demo Video**
 
-_To be added before final submission._
+https://drive.google.com/file/d/1q0WrarUEIZYhmAzQrP9BtJVh3uap2jqo/view?usp=sharing
+
+---
+
+## Demo Video
+
+[Watch the VeritasIQ Demo](https://drive.google.com/file/d/1q0WrarUEIZYhmAzQrP9BtJVh3uap2jqo/view?usp=sharing)
 
 ---
 
