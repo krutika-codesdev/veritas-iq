@@ -602,12 +602,12 @@ The enrichment workflow has been tested across different industrial product cate
 
 The same enrichment workflow was used without category-specific code changes.
 
-### Remaining Submission Work
+### Submission Status
 
-- Final MVP screenshots
-- Demo video
-- Final presentation
-- Final repository review
+- Final MVP screenshots — completed
+- Demo video — completed 
+- Final presentation — completed
+- Final repository review — completed
 
 ---
 
